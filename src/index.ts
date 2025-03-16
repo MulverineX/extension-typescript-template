@@ -32,8 +32,7 @@ class SampleExtension {
     api.on('getArtistSongs', async (artist: Artist) => {
       const musicbrainzArtist = (await this.musicbrainzApi.searchArtist(artist.artist_name, false))[0]
       if (musicbrainzArtist) {
-        // TODO
-        const artistId = musicbrainzArtist.artist_id.replace('soundcloud:users:', '')
+        const artistId = musicbrainzArtist.artist_id.replace('musicbrainz:artist:', '')
         const songs = await this.musicbrainzApi.getArtistSongs(artistId, false)
         return { songs }
       }
@@ -50,9 +49,9 @@ class SampleExtension {
 
     api.on('handleCustomRequest', async (url) => {
       try {
-        console.log('got stream request', url)
+        this.Logger.info('got stream request', url)
         const redirectUrl = await this.musicbrainzApi.getSongStreamById(new URL(url).pathname.substring(1), false)
-        console.log('got direct url', redirectUrl)
+        this.Logger.info('got direct url', redirectUrl)
         return { redirectUrl }
       } catch (e) {
         console.error(e, url)

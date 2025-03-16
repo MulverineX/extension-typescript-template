@@ -10,11 +10,11 @@ class LoggerClass {
     }
 
     warn(...messages: any[]) {
-        console.warn(`[WARN] [${this.actor}] `, ...messages);
+        console.log(`[WARN] [${this.actor}] `, ...messages);
     }
 
     error(...messages: any[]) {
-        console.error(`[ERROR] [${this.actor}] `, ...messages);
+        console.log(`[ERROR] [${this.actor}] `, ...messages);
     }
 }
 

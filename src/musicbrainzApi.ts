@@ -137,7 +137,7 @@ export class MusicbrainzAPI {
         date: t['first-release-date'], // this.parseISODate(t['first-release-date']) not sure what kind of date format this is supposed to be, nice docs Oveno
         genre: [], // Recording genres is a scoped value
         artists: (t['artist-credit'] as unknown as typeof t['artist-credit']['__data__']).map(({ artist }) => ({
-          artist_id: artist.id,
+          artist_id: `musicbrainz:artist:${artist.id}`,
           artist_name: artist.name,
         })),
         type: 'URL'
@@ -180,7 +180,7 @@ export class MusicbrainzAPI {
         date: trackDetails['first-release-date'], // this.parseISODate(t['first-release-date']) not sure what kind of date format this is supposed to be, nice docs Oveno,
         genre: (trackDetails.genres as unknown as { name: string}[]).map(({ name }) => name),
         artists: (trackDetails['artist-credit'] as unknown as typeof trackDetails['artist-credit']['__data__']).map(({ artist }) => ({
-            artist_id: artist.id,
+            artist_id: `musicbrainz:artist:${artist.id}`,
             artist_name: artist.name,
         })),
         type: 'URL'
