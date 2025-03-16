@@ -2,8 +2,7 @@
 
 ## Quick Overview
 
-This is a minimal starter app that benefits of the strong typing of the Typescript compiler plus all the latest ES6, ES7+ features
-on a NodeJS application.
+This is a minimal starter app that benefits of the strong typing of the Typescript compiler plus all the latest ES6, ES7+ features.
 
 
 ## Usage
@@ -13,16 +12,16 @@ on a NodeJS application.
 Clone the repository then:
 
 ``` bash
-yarn install
+bun install
 ```
 
 To install all dependencies.
 
 ## Writing code
 
-Custom types can be defined under `src/types`
+Custom types should be defined under `src/types`
 
-Functionality of the extension can be implemented in `extension.ts`
+Functionality of the extension can be implemented in `src/index.ts`
 
 ### Package details
 
@@ -42,37 +41,40 @@ Details of the package can be changed inside `package.json`
 
 ## Extension Lifecycle
 
-The extension system in Moosync makes use of events to functions.
+The extension system in Moosync makes use of Event Commands to listener functions.
 
-### Events
+### Event Commands
 
-**Documentation for events can be found [here](https://moosync.app/docs/interfaces/MoosyncExtensionTemplate.html)**
+**Available event commands can be found [here](https://moosync.app/extensions-sdk/wasm-extension-js/docs/interfaces/ExtensionAPI.html#on)**
 
-The basic events are:
+The basic event commands for Streaming extensions are:
 
-- onStarted: Fired when extension is started
-- onStopped: Fired when extension is stopped
+- getProviderScopes: Fired when extension is started, defines which Event Commands the extension will accept from the client.
+- songFromUrl: Fired when a user sends a URL to the app to resolve and begin playback on.
 
-It is recommended to create an instance of your required code inside the onStarted Event and destroy the same in onStopped.
+It is recommended to create an instance of your required code inside your entry function.
 
-Example for implementation of each event can be found [here](https://github.com/Moosync/extension-typescript-template/blob/main/src/extension.ts)
+Example for implementation of most Streaming extension events can be found [here](https://github.com/Moosync/moosync-exts/blob/v2/soundcloud/src/index.ts).
 
 ### API
 
 You may also make use of the on demand API to fetch data from Moosync.
 
-Documentation for the API can be found [here](https://moosync.app/docs/interfaces/extensionAPI.html)
+Documentation for the API can be found [here](https://moosync.app/extensions-sdk/wasm-extension-js/docs/interfaces/ExtensionAPI.html).
 
 ## Creating the extension
-
-To generate the output of webpack
-
-``` bash
-yarn webpack:build
-```
 
 To Build and pack the extension for Moosync using [Moosync packer](https://github.com/Moosync/extension-packer)
 
 ``` bash
-yarn build
+bun run build
+```
+
+To test how your extension responds to Event Commands you can use [moodriver](https://github.com/Moosync/moodriver) to setup a test harness.
+For now requires Rust/Cargo be available to build/install the CLI.
+
+A testing script and sample test is provided in this template. Note: an extension output (log) is required for tests to pass
+
+```bash
+bun test
 ```

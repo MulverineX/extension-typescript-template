@@ -1,91 +1,72 @@
-import {
-  ExtensionData,
-  ExtensionFactory,
-  ExtensionPreferenceGroup,
-  MoosyncExtensionTemplate
-} from '@moosync/moosync-types'
-import { MyExtension } from './extension'
+import { Artist, Song, api } from '@moosync/edk'
+import { Logger } from './util'
+import { MusicbrainzAPI } from './musicbrainzApi'
 
-export default class MyExtensionData implements ExtensionData {
-  extensionDescriptors: ExtensionFactory[] = [new MyExtensionFactory()]
+class SampleExtension {
+  Logger = Logger('Sample Extension')
+
+  constructor() {
+    this.Logger.info('Initializing')
+  }
+
+  private musicbrainzApi = new MusicbrainzAPI(this.updateBaseUrl.bind(this))
+
+  private updateBaseUrl(key: string) {
+    api.setSecure({ key: 'BASE_URL', value: key })
+  }
+
+  // Stub function for now
+  private fetchPreferences() {
+    const baseUrl = api.getSecure<string>({ key: 'BASE_URL' })
+    this.musicbrainzApi.getBaseUrl(baseUrl)
+  }
+
+  registerListeners() {
+    api.on('getProviderScopes', () => {
+      return [
+        'artistSongs',
+        'songFromUrl',
+      ]
+    })
+
+    api.on('getArtistSongs', async (artist: Artist) => {
+      const musicbrainzArtist = (await this.musicbrainzApi.searchArtist(artist.artist_name, false))[0]
+      if (musicbrainzArtist) {
+        // TODO
+        const artistId = musicbrainzArtist.artist_id.replace('soundcloud:users:', '')
+        const songs = await this.musicbrainzApi.getArtistSongs(artistId, false)
+        return { songs }
+      }
+
+      return {
+        songs: []
+      }
+    })
+
+    api.on('getSongFromUrl', async (url) => {
+      const song = (await this.musicbrainzApi.parseUrl(url, false)) as unknown as Song
+      if (song) return { song }
+    })
+
+    api.on('handleCustomRequest', async (url) => {
+      try {
+        console.log('got stream request', url)
+        const redirectUrl = await this.musicbrainzApi.getSongStreamById(new URL(url).pathname.substring(1), false)
+        console.log('got direct url', redirectUrl)
+        return { redirectUrl }
+      } catch (e) {
+        console.error(e, url)
+      }
+    })
+  }
 }
 
-class MyExtensionFactory implements ExtensionFactory {
-  async registerUserPreferences(): Promise<ExtensionPreferenceGroup[]> {
-    return [
-      {
-        type: 'CheckboxGroup',
-        key: 'test_checkbox',
-        title: 'Checkbox Group',
-        description: 'This is a checkbox',
-        items: [
-          {
-            title: 'this is an example checkbox',
-            key: 'checkbox_1',
-            enabled: false
-          },
-          {
-            title: 'this is an example checkbox 2',
-            key: 'checkbox_2',
-            enabled: false
-          }
-        ]
-      },
-      {
-        type: 'DirectoryGroup',
-        key: 'test_dirgroup',
-        title: 'Directories',
-        description: 'This is a checkbox',
-        default: []
-      },
-      {
-        type: 'FilePicker',
-        key: 'test_filepicker',
-        title: 'Directories',
-        description: 'This is a checkbox',
-        default: ''
-      },
-      {
-        type: 'EditText',
-        key: 'test_editText',
-        title: 'Input Field',
-        description: 'This is an Input Field',
-        default: 'This is test value'
-      },
-      {
-        type: 'ButtonGroup',
-        key: 'test_buttongroup',
-        title: 'Button Group',
-        description: 'This is a Button group',
-        items: [
-          {
-            title: 'Button1',
-            key: 'button1',
-            lastClicked: 0
-          },
-          {
-            title: 'Button2',
-            key: 'button2',
-            lastClicked: 0
-          },
-          {
-            title: 'Button3',
-            key: 'button3',
-            lastClicked: 0
-          }
-        ]
-      },
-      {
-        type: 'ProgressBar',
-        key: 'test_progressBar',
-        title: 'ProgressBar',
-        description: 'Progress bar that shows progress',
-        default: 0
-      }
-    ]
-  }
+export function entry() {
+  const ext = new SampleExtension()
+  ext.registerListeners()
+}
 
-  async create(): Promise<MoosyncExtensionTemplate> {
-    return new MyExtension()
-  }
+module.exports = {
+  ...module.exports,
+  ...require('@moosync/edk').Exports
 }
