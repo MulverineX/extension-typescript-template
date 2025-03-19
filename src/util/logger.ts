@@ -1,3 +1,5 @@
+import { getSecure } from './extension'
+
 export class LoggerClass {
     private actor: string
 
@@ -5,8 +7,24 @@ export class LoggerClass {
         this.actor = actor
     }
 
+    private get debugging() {
+        let DEBUGGING: boolean
+        try {
+            DEBUGGING = getSecure<true>('DEBUGGING')
+        } catch (e) {
+            DEBUGGING = false
+        }
+        return DEBUGGING
+    }
+
     info(...messages: any[]) {
         console.log(`[${this.actor}]`, ...messages);
+    }
+
+    debug(...messages: any[]) {
+        if (this.debugging) {
+            console.debug(`[${this.actor}]`, ...messages);
+        }
     }
 
     warn(...messages: any[]) {

@@ -44,3 +44,13 @@ export const MultiCommandScopes = [
     ['playerEvents', ['onPlay', 'onPause', 'onSkip', 'onPrevious']],
     ['databaseEvents', ['onThing', 'onOtherThing']],
 ] as const
+
+export function getSecure<T>(key: string): T {
+    const attempt = api.getSecure({ key }) as any
+
+    if (attempt?.value !== undefined && attempt?.value !== null) {
+        return attempt.value
+    }
+
+    throw new Error(`Secure value ${key} not found`)
+}

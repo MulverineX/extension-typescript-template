@@ -23,6 +23,7 @@ class SampleExtension {
 
   registerListeners() {
     api.on('getProviderScopes', () => {
+      this.Logger.debug('Responding to event command getProviderScopes')
       return [
         'artistSongs',
         'songFromUrl',
@@ -30,6 +31,8 @@ class SampleExtension {
     })
 
     api.on('getArtistSongs', async (artist: Artist) => {
+      this.Logger.debug('Responding to event command getArtistSongs', artist)
+
       const musicbrainzArtist = (await this.musicbrainzApi.searchArtist(artist.artist_name, false))[0]
       if (musicbrainzArtist) {
         const artistId = musicbrainzArtist.artist_id.replace('musicbrainz:artist:', '')
@@ -43,18 +46,22 @@ class SampleExtension {
     })
 
     api.on('getSongFromUrl', async (url) => {
+      this.Logger.debug('Responding to event command getSongFromUrl')
+
       const song = (await this.musicbrainzApi.parseUrl(url, false)) as unknown as Song
       if (song) return { song }
     })
 
     api.on('handleCustomRequest', async (url) => {
+      this.Logger.debug('Responding to event command handleCustomRequest')
+
       try {
-        this.Logger.info('got stream request', url)
+        this.Logger.debug('got stream request', url)
         const redirectUrl = await this.musicbrainzApi.getSongStreamById(new URL(url).pathname.substring(1), false)
-        this.Logger.info('got direct url', redirectUrl)
+        this.Logger.debug('got direct url', redirectUrl)
         return { redirectUrl }
       } catch (e) {
-        console.error(e, url)
+        this.Logger.error('Error handling custom request', e, url)
       }
     })
   }

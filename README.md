@@ -76,5 +76,5 @@ For now requires Rust/Cargo be available to build/install the CLI.
 A testing script and sample test is provided in this template. Note: an extension output (log) is required for tests to pass
 
 ```bash
-bun test
+bun run test
 ```

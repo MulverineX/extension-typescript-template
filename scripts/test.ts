@@ -28,6 +28,8 @@ console.log('Done. Running tests...')
 
 const tests = Object.entries(await fs.readdir('./test'))
 
+let requiredTests = 0
+
 let fail = false
 
 for await (const [i, test] of tests) {
@@ -40,6 +42,11 @@ for await (const [i, test] of tests) {
             console.log('   Skipping test')
             continue
         }
+
+        if (trace.required) {
+            requiredTests++
+        }
+
         if (trace.invert) {
             console.log('   Inverting test, expecting error')
         }
@@ -54,137 +61,162 @@ for await (const [i, test] of tests) {
 
         let extensionLogged = false
 
-        let stdout: undefined | AsyncIterable<string>
+        const moodriver = Bun.spawn({
+            cmd: ['moodriver', verbose ? '-vv' : '-v', '-t', `./test/${test}`, './ext.wasm'],
+            stdout: 'pipe',
+            windowsHide: true,
+            windowsVerbatimArguments: true,
+        })
 
-        let testFailed = false
-         
-        try {
-            stdout = $`moodriver ${verbose ? '-vv' : '-v'} -t ./test/${test} ./ext.wasm`.lines()
-        } catch (err) {
-            let _err = err
-            testFailed = true
+        const reader = moodriver.stdout.getReader()
+
+        const decoder = new TextDecoder()
+
+        class ShellLine {
+            constructor(public rawLine: string, public i: number, public chunkI: number, public lines: number) {}
+
+            get line() {
+                return this.rawLine.replace(/\u001b\[.*?m/g, '')
+            }
+        }
+ 
+        async function* shell() {
+            let done = false
+
+            let globalI = 0
+
+            while (!done) {
+                const chunk = await reader.read()
+
+                if (chunk.done) {
+                    done = true
+                } else {
+                    let lines = decoder.decode(chunk.value, {stream: true}).split('\n')
+
+                    for (let i = 0; i < lines.length; i++) {
+                        yield new ShellLine(lines[i], globalI++, i, lines.length)
+                    }
+                }
+            }
         }
 
-        if (stdout !== undefined) {
-            let extensionLogging: false | string = false
+        let extensionLogging: false | string = false
 
-            console.log('Does this even run?')
+        let fullLog = ''
 
-            console.log('function thats getting all of the lines at once, even though it should be async:', stdout[Symbol.asyncIterator]().next.toString())
+        let commands = 0
 
-            try {
-                const _stdout = stdout[Symbol.asyncIterator]()
-                _stdout.next().then((line) => console.log('This should run, but never does:\n', line.value)).catch((err) => {
+        for await (const { line, rawLine } of shell()) {
+            fullLog += rawLine + '\n'
 
-                    console.log('ALL lines are returned in the first `.next()` call:\n', err.stdout.toString())
-                })
-                for await (const _line of stdout) {
-                    console.log('This never runs because the fake AsyncIterator is consumed in the first `.next()` call')
-                    if (verbose) {
-                        console.log(_line)
-    
-                        if (_line.includes('extism::pdk')) {
-                            extensionLogged = true
-                        }
-                    } else {
-                        const trimmedLine = _line.replace(/\u001b\[.*?m/g, '').trim()
-                        const timestamp = /^\d+-\d+-\d+T(\d+):(\d+):(\d+)\.(\d+)Z\s+([^]*)$/.exec(trimmedLine)
-    
-                        // Newlines in the extension log
-                        if (timestamp === null && extensionLogging !== false) {
-                            const line = trimmedLine.split(/plugin="\w+-\w+-\w+-\w+-\w+"/)
-                            console[extensionLogging](`                            ${extensionLogging.length === 5 ? ' ' : ''}${line[0]}`)
-    
-                            if (line[1] === '') {
-                                extensionLogging = false
-                            }
-    
-                            continue
-                        }
-    
-                        if (timestamp !== null) {
-                            const parsed = /^(\w+)\s+extism::pdk:\s+([^]*)$/.exec(timestamp[5].trim())
-    
-                            if (parsed !== null) {
-                                extensionLogged = true
-    
-                                const contents = parsed[2].split(/plugin="\w+-\w+-\w+-\w+-\w+"/)
-    
-                                const newLine = `     ${timestamp[1]}:${timestamp[2]}:${timestamp[3]}.${timestamp[4]} ${parsed[1].length === 4 ? ' ' : ''}[${parsed[1]}] ${contents[0]}`
-    
-                                const endOfLog = contents[1] === ''
-    
-                                switch (parsed[1]) {
-                                    case 'INFO': {
-                                        console.log(newLine)
-                                        if (!endOfLog) {
-                                            extensionLogging = 'log'
-                                        }
-                                    } break
-                                    case 'DEBUG': {
-                                        console.debug(newLine)
-                                        if (!endOfLog) {
-                                            extensionLogging = 'log'
-                                        }
-                                    } break
-                                    case 'WARN': {
-                                        console.warn(newLine)
-                                        if (!endOfLog) {
-                                            extensionLogging = 'warn'
-                                        }
-                                    } break
-                                    case 'ERROR': {
-                                        console.error(newLine)
-                                        if (!endOfLog) {
-                                            extensionLogging = 'error'
-                                        }
-                                    } break
-                                }
-                            } else {
-                                extensionLogging = false
-                            }
-                        }
-                    }
-                }
-            } catch (err) {
-                console.log('as soon as the AsyncIterable is consumed it errors out\n', err.stdout.toString(), err.stderr.toString().length)
-            }
-            
+            if (verbose) {
+                console.log(line)
 
-            if (testFailed) {
-                if (extensionLogged) {
-                    if (!trace.invert) {
-                        console.log('   Extension failed\n')
-                        console.error('   Test failed!')
-                        if (trace.required) {
-                            fail = true
-                        }
-                    } else {
-                        console.log('   Extension failed as expected')
-                        console.log('   Test passed!')
-                    }
-                } else {
-                    console.log('   Extension failed to run\n')
-                    console.log('   moodriver error\n')
-                    console.log('   Test failed!')
-        
-                    fail = true
+                if (line.includes('extism::pdk')) {
+                    extensionLogged = true
                 }
             } else {
-                if (extensionLogged) {
-                    if (!trace.invert) {
-                        console.log('   Extension output')
-                        console.log('   Test passed!')
+                const timestamp = /^\d+-\d+-\d+T(\d+):(\d+):(\d+)\.(\d+)Z\s+([^]*)$/.exec(line)
+
+                // Newlines in the extension log
+                if (timestamp === null && extensionLogging !== false) {
+                    const newLine = line.split(/plugin="\w+-\w+-\w+-\w+-\w+"/)
+                    console[extensionLogging](`                            ${extensionLogging.length === 5 ? ' ' : ''}${newLine[0]}`)
+
+                    if (newLine[1] === '') {
+                        extensionLogging = false
+                    }
+
+                    continue
+                }
+
+                if (timestamp !== null) {
+                    const parsed = /^(\w+)\s+extism::pdk:\s+([^]*)$/.exec(timestamp[5].trim())
+
+                    if (parsed !== null && !parsed[2].startsWith('parsed ext command msg')) {
+                        extensionLogged = true
+
+                        const contents = parsed[2].split(/plugin="\w+-\w+-\w+-\w+-\w+"/)
+
+                        const newLine = `     ${timestamp[1]}:${timestamp[2]}:${timestamp[3]}.${timestamp[4]} ${parsed[1].length === 4 ? ' ' : ''}[${parsed[1]}] ${contents[0]}`
+
+                        const endOfLog = contents[1] === ''
+
+                        switch (parsed[1]) {
+                            case 'INFO': {
+                                console.log(newLine)
+                                if (!endOfLog) {
+                                    extensionLogging = 'log'
+                                }
+                            } break
+                            case 'DEBUG': {
+                                console.debug(newLine)
+                                if (!endOfLog) {
+                                    extensionLogging = 'log'
+                                }
+                            } break
+                            case 'WARN': {
+                                console.warn(newLine)
+                                if (!endOfLog) {
+                                    extensionLogging = 'warn'
+                                }
+                            } break
+                            case 'ERROR': {
+                                console.error(newLine)
+                                if (!endOfLog) {
+                                    extensionLogging = 'error'
+                                }
+                            } break
+                        }
                     } else {
-                        console.log('   Passed unexpectedly.')
-                        console.log('   Test failed!')
+                        extensionLogging = false
                     }
                 } else {
-                    console.log('   Extension output not found.')
-                    console.log('   Test failed!')
+                    if (line.startsWith('Command [')) {
+                        const command = line.split(/Command \[\d\/\d\]: /)[1]
+                        console.log(`\n     Running event command ${commands++}: ${command}\n`)
+                    } else if (line.startsWith('Expected: ')) {
+
+                        console.error(`\n     Received invalid response. ${line}\n`)
+                    }
+                }
+            }
+        }
+
+        if ((await moodriver.exited) > 0) {
+            if (extensionLogged) {
+                if (!trace.invert) {
+                    console.error('   Extension failed\n')
+                    console.error('   Test failed!')
                     if (trace.required) {
                         fail = true
                     }
+                } else {
+                    console.log('   Extension failed as expected\n')
+                    console.log('   Test passed!')
+                }
+            } else {
+                console.error('   Extension failed to run\n')
+                console.error('   moodriver error\n')
+                console.error('   Test failed!')
+    
+                fail = true
+            }
+        } else {
+            if (extensionLogged) {
+                if (!trace.invert) {
+                    console.log('   Test passed!')
+                } else {
+                    console.error('   Passed unexpectedly.\n')
+                    console.error('   Test failed!')
+                }
+            } else {
+                console.error('   Extension output not found.\n')
+                console.error('   moodriver error, full output:\n')
+                console.log(fullLog)
+                console.error('   Test failed!')
+                if (trace.required) {
+                    fail = true
                 }
             }
         }
@@ -192,9 +224,13 @@ for await (const [i, test] of tests) {
 }
 
 if (fail) {
-    console.log('Some test(s) failed, check the output above for more information.')
+    console.error('Some required test(s) failed, check the output above for more information.')
 
     process.exit(1)
 } else {
-    console.log(`All ${tests.length} tests passed!`)
+    if (requiredTests === 0) {
+        console.log('Tests were ran, no required tests were found.')
+    } else {
+        console.log(`All ${tests.length} required tests passed!`)
+    }
 }
