@@ -54,7 +54,7 @@ The basic event commands for Streaming extensions are:
 
 It is recommended to create an instance of your required code inside your entry function.
 
-Example for implementation of most Streaming extension events can be found [here](https://github.com/Moosync/moosync-exts/blob/v2/soundcloud/src/index.ts).
+Example for implementation of most Streaming extension events can be found [here](https://github.com/Moosync/moosync-exts/blob/d66620dff2301c4205eb5695a52999da64f5ec52/soundcloud/src/index.ts).
 
 ### API
 
