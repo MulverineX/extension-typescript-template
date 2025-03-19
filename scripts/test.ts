@@ -70,9 +70,16 @@ for await (const [i, test] of tests) {
 
             console.log('Does this even run?')
 
+            console.log('function thats getting all of the lines at once, even though it should be async', stdout[Symbol.asyncIterator])
+
             try {
+                const _stdout = stdout[Symbol.asyncIterator]()
+                _stdout.next().catch((err) => {
+
+                    console.log('ALL lines are returned in the first `.next()` call:\n', err.stdout.toString())
+                })
                 for await (const _line of stdout) {
-                    console.log('How about this?')
+                    console.log('This never runs because the fake AsyncIterator is consumed in the first `.next()` call')
                     if (verbose) {
                         console.log(_line)
     
