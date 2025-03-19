@@ -6,15 +6,15 @@ export class LoggerClass {
     }
 
     info(...messages: any[]) {
-        console.log(`[INFO] [${this.actor}] `, ...messages);
+        console.log(`[${this.actor}]`, ...messages);
     }
 
     warn(...messages: any[]) {
-        console.log(`[WARN] [${this.actor}] `, ...messages);
+        console.warn(`[${this.actor}]`, ...messages);
     }
 
     error(...messages: any[]) {
-        console.log(`[ERROR] [${this.actor}] `, ...messages);
+        console.error(`[${this.actor}]`, ...messages);
     }
 }
 

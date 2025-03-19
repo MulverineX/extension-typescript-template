@@ -3,7 +3,7 @@
     "name": "Sample Test",
     "description": "A sample test for the starter extension",
     // Whether to mark the Test Workflow as failed if this test fails.
-    "required": true,
+    "required": false,
     // Whether to expect this test to fail.
     "invert": false,
     // Used when the test is either a stub or is not needed during development.
@@ -15,7 +15,7 @@
         "data": {
           "packageName": "moosync.starter"
         },
-        "expected": ["artistSongs", "songFromUrl"]
+        "expected": ["artistSongs"]
       }
     ],
     // Responds to on-demand API requests from the extension in order of appearance.

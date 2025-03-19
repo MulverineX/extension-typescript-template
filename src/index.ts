@@ -61,9 +61,6 @@ class SampleExtension {
 }
 
 export function entry() {
-  console.info('Hello????')
-  console.log('Sanity Check!!!')
-  console.error('Helooooooo')
   const ext = new SampleExtension()
   ext.registerListeners()
 }
