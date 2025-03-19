@@ -3,7 +3,7 @@
     "name": "Sample Test",
     "description": "A sample test for the starter extension",
     // Whether to mark the Test Workflow as failed if this test fails.
-    "required": false,
+    "required": true,
     // Whether to expect this test to fail.
     "invert": false,
     // Used when the test is either a stub or is not needed during development.
