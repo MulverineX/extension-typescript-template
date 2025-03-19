@@ -70,11 +70,11 @@ for await (const [i, test] of tests) {
 
             console.log('Does this even run?')
 
-            console.log('function thats getting all of the lines at once, even though it should be async', stdout[Symbol.asyncIterator])
+            console.log('function thats getting all of the lines at once, even though it should be async:', stdout[Symbol.asyncIterator]().next.toString())
 
             try {
                 const _stdout = stdout[Symbol.asyncIterator]()
-                _stdout.next().catch((err) => {
+                _stdout.next().then((line) => console.log('This should run, but never does:\n', line.value)).catch((err) => {
 
                     console.log('ALL lines are returned in the first `.next()` call:\n', err.stdout.toString())
                 })
