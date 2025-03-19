@@ -13,5 +13,4 @@ pack:
 	@mopack --path .
 
 test: build copy
-	rm -f ~/.local/share/app.moosync.moosync/extensions/moosync.sample.extension/dist/ext.wasm
-	cp $(DIST_DIR)/ext.wasm ~/.local/share/app.moosync.moosync/extensions/moosync.sample.extension/dist
+	bun run test
