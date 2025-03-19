@@ -1,4 +1,4 @@
-class LoggerClass {
+export class LoggerClass {
     private actor: string
 
     constructor(actor: string) {

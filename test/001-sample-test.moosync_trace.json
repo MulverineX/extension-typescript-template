@@ -13,9 +13,9 @@
       {
         "type": "getProviderScopes",
         "data": {
-          "packageName": "moosync.extension.starter"
+          "packageName": "moosync.starter"
         },
-        "expected": ["songFromUrl", "artistSongs"]
+        "expected": ["artistSongs", "songFromUrl"]
       }
     ],
     // Responds to on-demand API requests from the extension in order of appearance.

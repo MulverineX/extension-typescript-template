@@ -3,8 +3,8 @@ DIST_DIR := dist
 all: build pack
 
 build:
-	@corepack bun install
-	@corepack bun run build
+	@bun install
+	@bun run build
 
 opt:
 	@wasm-opt -Oz $(DIST_DIR)/ext.wasm -o $(DIST_DIR)/ext.wasm

@@ -64,7 +64,7 @@ Documentation for the API can be found [here](https://moosync.app/extensions-sdk
 
 ## Creating the extension
 
-To Build and pack the extension for Moosync using [Moosync packer](https://github.com/Moosync/extension-packer)
+To Build and pack the extension for Moosync using [extism-js](https://github.com/extism/js-pdk#install-script) & [Moosync packer](https://github.com/Moosync/extension-packer)
 
 ``` bash
 bun run build

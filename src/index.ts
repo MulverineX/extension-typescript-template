@@ -1,5 +1,5 @@
 import { Artist, Song, api } from '@moosync/edk'
-import { Logger } from './util'
+import { Logger, registerCommands } from './util'
 import { MusicbrainzAPI } from './musicbrainzApi'
 
 class SampleExtension {
@@ -61,11 +61,9 @@ class SampleExtension {
 }
 
 export function entry() {
+  console.info('Hello????')
+  console.log('Sanity Check!!!')
+  console.error('Helooooooo')
   const ext = new SampleExtension()
   ext.registerListeners()
-}
-
-module.exports = {
-  ...module.exports,
-  ...require('@moosync/edk').Exports
 }
