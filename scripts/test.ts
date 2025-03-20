@@ -26,7 +26,7 @@ try {
 
 console.log('Building extension...')
 
-await $`bun run build`.quiet()
+await $`bun run build`
 
 console.log('Done. Running tests...')
 
