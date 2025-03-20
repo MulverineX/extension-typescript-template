@@ -12,7 +12,7 @@ jobs:
         with:
           ref: 'main'
 
-      - name: install dependencies (ubuntu only)
+      - name: Install dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: make binaryen python3.11 curl
