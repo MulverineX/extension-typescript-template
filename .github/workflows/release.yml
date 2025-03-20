@@ -1,0 +1,74 @@
+name: 'Release'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 'main'
+
+      - name: install dependencies (ubuntu only)
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: make binaryen python3.11 curl
+
+      - name: Install extism-js
+        run: |
+          curl -O https://raw.githubusercontent.com/extism/js-pdk/main/install.sh
+          bash install.sh
+          ldd --version
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+          targets: 'wasm32-unknown-unknown,wasm32-wasip1'
+
+      - name: Install moodriver
+        run: cargo install --git https://github.com/Moosync/moodriver
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Run Tests
+        run: bun run test
+
+      - name: Get release name
+        id: date
+        run: |
+          echo "{release_name}={Extensions release ($(date +'%Y-%m-%d'))}" >> $GITHUB_STATE
+
+      - name: Create Release
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log('environment', process.versions);
+
+            const fs = require('fs').promises;
+
+            const { repo: { owner, repo }, sha } = context;
+            console.log({ owner, repo, sha });
+
+            const release = await github.repos.createRelease({
+              owner, repo,
+              tag_name: `release-${sha}`,
+              draft: false,
+              target_commitish: sha
+            });
+
+            console.log('created release', { release });
+
+            const file = (await fs.readdir('./')).find((f) => f.endsWith('.msox'))
+
+            await github.repos.uploadReleaseAsset({
+              owner, repo,
+              release_id: release.data.id,
+              name: file,
+              data: await fs.readFile(`./${file}`)
+            });

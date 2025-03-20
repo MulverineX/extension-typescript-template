@@ -1,24 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "rootDir": "src",
-    "paths": {
-      "*": [
-        "./src/types/*"
-      ]
-    }
+    "target": "ES2020",
+    "outDir": "./dist",
+    "moduleResolution": "Bundler",
+    "lib": [], // this ensures unsupported globals aren't suggested
+    "types": ["@extism/js-pdk", "@types/bun", "@types/node"] // while this makes the IDE aware of the ones that are
   },
-  "typeRoots": [
-    "./node_modules",
-    "./node_modules/@moosync/moosync-types",
-    "./node_modules/@types",
-    "./src/types"
-  ],
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-  ],
+  "include": ["src/index.ts"]
 }

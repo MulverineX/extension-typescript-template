@@ -1,0 +1,42 @@
+name: 'Test'
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 'main'
+
+      - name: install dependencies (ubuntu only)
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: make binaryen python3.11 curl
+
+      - name: Install extism-js
+        run: |
+          curl -O https://raw.githubusercontent.com/extism/js-pdk/main/install.sh
+          bash install.sh
+          ldd --version
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+          targets: 'wasm32-unknown-unknown,wasm32-wasip1'
+
+      - name: Install moodriver
+        run: cargo install --git https://github.com/Moosync/moodriver
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Run Tests
+        run: bun run test

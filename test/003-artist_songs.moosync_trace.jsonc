@@ -1,0 +1,142 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Moosync/moodriver/refs/heads/main/schema.json",
+    "name": "Artist Songs",
+    "description": "Extension should return several valid Song objects for a musicbrainz artist URL",
+    // Whether to mark the Test Workflow as failed if this test fails.
+    "required": true,
+    // Whether to expect this test to fail.
+    "invert": false,
+    // Used when the test is either a stub or is not needed during development.
+    "skip": false,
+    // Called immediately after extension load & `entry` is called, sequentially.
+    "commands": [
+        {
+            "type": "requestedArtistSongs",
+            "data": [
+                {
+                    "artist_id": "moosync.starter:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
+                    "artist_name": "Jack Black",
+                    "artist_song_count": 5
+                },
+                // pagination token
+                null
+            ],
+            "expected": {
+                "songs": [
+                    {
+                        "_id": "moosync.starter:7652b818-9015-4502-99e2-20bde746b06a",
+                        "title": "Chad Gadya (Passover Bonus)",
+                        "duration": 155.533,
+                        "url": "https://beta.musicbrainz.org/recording/7652b818-9015-4502-99e2-20bde746b06a",
+                        "playbackUrl": "extension://moosync.starter/7652b818-9015-4502-99e2-20bde746b06a",
+                        "date_added": "ignore",
+                        "genre": [],
+                        "artists": [
+                            {
+                                "artist_id": "moosync.starter:artist:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
+                                "artist_name": "Jack Black",
+                                "artist_song_count": 1
+                            }
+                        ],
+                        "type": "URL"
+                    },
+                    {
+                        "_id": "moosync.starter:c8cf6c8c-192d-4d42-9206-e316db9897cb",
+                        "title": "Cosmic I",
+                        "duration": 208.783,
+                        "url": "https://beta.musicbrainz.org/recording/c8cf6c8c-192d-4d42-9206-e316db9897cb",
+                        "playbackUrl": "extension://moosync.starter/c8cf6c8c-192d-4d42-9206-e316db9897cb",
+                        "date_added": "ignore",
+                        "genre": [],
+                        "artists": [
+                            {
+                                "artist_id": "moosync.starter:artist:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
+                                "artist_name": "Jack Black",
+                                "artist_song_count": 1
+                            }
+                        ],
+                        "type": "URL"
+                    },
+                    {
+                        "_id": "moosync.starter:5d7ac7ea-1e06-4aaf-9f17-0c3c231255e5",
+                        "title": "I Am the Warlock",
+                        "duration": 190,
+                        "url": "https://beta.musicbrainz.org/recording/5d7ac7ea-1e06-4aaf-9f17-0c3c231255e5",
+                        "playbackUrl": "extension://moosync.starter/5d7ac7ea-1e06-4aaf-9f17-0c3c231255e5",
+                        "date_added": "ignore",
+                        "genre": [],
+                        "artists": [
+                            {
+                                "artist_id": "moosync.starter:artist:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
+                                "artist_name": "Jack Black",
+                                "artist_song_count": 1
+                            },
+                            {
+                                "artist_id": "moosync.starter:artist:e61baf26-04fe-4f07-8f2a-c1ecbf7ca4c1",
+                                "artist_name": "Probot",
+                                "artist_song_count": 1
+                            }
+                        ],
+                        "type": "URL"
+                    },
+                    {
+                        "_id": "moosync.starter:4b8e4c0d-25e0-4acd-9b64-5271560cf2d5",
+                        "title": "I Feel Alive",
+                        "duration": 246.066,
+                        "url": "https://beta.musicbrainz.org/recording/4b8e4c0d-25e0-4acd-9b64-5271560cf2d5",
+                        "playbackUrl": "extension://moosync.starter/4b8e4c0d-25e0-4acd-9b64-5271560cf2d5",
+                        "date_added": "ignore",
+                        "genre": [],
+                        "artists": [
+                            {
+                                "artist_id": "moosync.starter:artist:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
+                                "artist_name": "Jack Black",
+                                "artist_song_count": 1
+                            }
+                        ],
+                        "type": "URL"
+                    },
+                    {
+                        "_id": "moosync.starter:0e184629-d621-4b00-9674-3e90386a5540",
+                        "title": "Kung Fu Fighting",
+                        "duration": 150,
+                        "url": "https://beta.musicbrainz.org/recording/0e184629-d621-4b00-9674-3e90386a5540",
+                        "playbackUrl": "extension://moosync.starter/0e184629-d621-4b00-9674-3e90386a5540",
+                        "date_added": "ignore",
+                        "genre": [],
+                        "artists": [
+                            {
+                                "artist_id": "moosync.starter:artist:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
+                                "artist_name": "Jack Black",
+                                "artist_song_count": 1
+                            },
+                            {
+                                "artist_id": "moosync.starter:artist:2c69465c-0f76-45ce-90a2-1ed0fdacc997",
+                                "artist_name": "CeeLo Green",
+                                "artist_song_count": 1
+                            }
+                        ],
+                        "type": "URL"
+                    }
+                ]
+            }
+        }
+    ],
+    // Responds to on-demand API requests from the extension in order of appearance.
+    "requests": [
+        {
+            "type": "getSecure",
+            "data": {
+                "key": "BASE_URL",
+                "value": "https://beta.musicbrainz.org/ws/2"
+            }
+        },
+        {
+            "type": "getSecure",
+            "data": {
+                "key": "DEBUGGING",
+                "value": true
+            }
+        }
+    ]
+}

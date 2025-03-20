@@ -1,0 +1,40 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Moosync/moodriver/refs/heads/main/schema.json",
+    "name": "Stream URL",
+    "description": "Extension should return a direct link to a playable audio URL",
+    // Whether to mark the Test Workflow as failed if this test fails.
+    "required": true,
+    // Whether to expect this test to fail.
+    "invert": false,
+    // Used when the test is either a stub or is not needed during development.
+    "skip": false,
+    // Called immediately after extension load & `entry` is called, sequentially.
+    "commands": [
+      {
+        "type": "customRequest",
+        "data": [
+          "extension://moosync.starter/4b8e4c0d-25e0-4acd-9b64-5271560cf2d5"
+        ],
+        "expected": {
+          "redirectUrl": "https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3"
+        }
+      }
+    ],
+    // Responds to on-demand API requests from the extension in order of appearance.
+    "requests": [
+      {
+        "type": "getSecure",
+        "data": {
+          "key": "BASE_URL",
+          "value": "https://beta.musicbrainz.org/ws/2"
+        }
+      },
+      {
+        "type": "getSecure",
+        "data": {
+          "key": "DEBUGGING",
+          "value": true
+        }
+      }
+    ]
+  }
