@@ -49,7 +49,7 @@ class SampleExtension {
       this.Logger.debug('Responding to event command handleCustomRequest')
 
       try {
-        this.Logger.debug('got stream request', url)
+        this.Logger.debug('got stream request', url, typeof this.musicbrainzApi.getSongDetailsById)
         const redirectUrl = await this.musicbrainzApi.getSongStreamById(new URL(url).pathname.substring(1), false)
         this.Logger.debug('got direct url', redirectUrl)
         return { redirectUrl }
