@@ -18,7 +18,7 @@ async function build() {
     await $`cp package.json dist`
 
     // Should be dist/ext.wasm but moodriver gets upset
-    await $`bun i && bun esbuild && extism-js dist/index.js -i ./node_modules/@moosync/edk/src/plugin.d.ts -o ./dist/ext.wasm --skip-opt && mopack --path ./dist`
+    await $`bun i && bun esbuild && extism-js dist/index.js -i ./node_modules/@moosync/edk/src/plugin.d.ts -o ./dist/ext.wasm --skip-opt && mopack --path ./dist`.quiet()
 
     //await index.write(indexText)
 }
