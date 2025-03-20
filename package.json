@@ -16,7 +16,7 @@
   "scripts": {
     "build": "bun run scripts/build.ts",
     "test": "bun run scripts/test.ts",
-    "watch": "bun watch scripts/test.ts"
+    "watch": "bun run --watch scripts/test.ts --watchMode"
   },
   "author": "MulverineX",
   "devDependencies": {

@@ -15,15 +15,12 @@ async function build() {
 
     console.log('Building extension')
 
-    const index = Bun.file('./src/index.ts')
-    const indexText = await index.text()
-
-    await index.write(`${indexText}\n\n${exportHack}`)
+    await $`cp package.json dist`
 
     // Should be dist/ext.wasm but moodriver gets upset
-    await $`bun i && bun esbuild && extism-js dist/index.js -i ./node_modules/@moosync/edk/src/plugin.d.ts -o ext.wasm --skip-opt && mopack --path .`.quiet()
+    await $`bun i && bun esbuild && extism-js dist/index.js -i ./node_modules/@moosync/edk/src/plugin.d.ts -o ./dist/ext.wasm --skip-opt && mopack --path ./dist`.quiet()
 
-    await index.write(indexText)
+    //await index.write(indexText)
 }
 
 build()

@@ -12,11 +12,11 @@ export class MusicbrainzAPI {
 
   public getBaseUrl(baseUrl?: string) {
     if (!baseUrl) {
-      this.Logger.info('setting base url')
-      baseUrl = 'https://beta.musicbrainz.org/ws/'
+      this.Logger.debug('setting base url')
+      baseUrl = 'https://beta.musicbrainz.org/ws/2/'
     }
 
-    this.Logger.info('setting base url', baseUrl)
+    this.Logger.debug('setting base url', baseUrl)
     this.BASE_URL = baseUrl
     this.updateBaseUrlCallback(baseUrl)
   }
@@ -40,12 +40,12 @@ export class MusicbrainzAPI {
 
     try {
       const raw = await _fetch(parsedUrl)
-      this.Logger.info('raw', parsedUrl)
+      this.Logger.debug('raw', parsedUrl)
       const resp = JSON.parse(await raw.text())
       // this.cacheHandler.addToCache(url.toString(), resp)
       return resp
     } catch (e) {
-      console.error('Error fetching URL', parsedUrl, e)
+      this.Logger.error('Error fetching URL', parsedUrl, e)
     }
   }
 
@@ -66,7 +66,7 @@ export class MusicbrainzAPI {
     // }
     streamURL = undefined
 
-    this.Logger.info('finding url')
+    this.Logger.debug('finding url')
     if (!streamURL) {
       streamURL = this.findStreamURL()
       // this.cacheHandler.addToCache(`song:${id}`, streamURL)
@@ -93,6 +93,7 @@ export class MusicbrainzAPI {
     return ret
   }
 
+  // Currently unused
   public async searchArtist(artist_name: string, invalidateCache: boolean) {
     try {
         /// query=artist:fred%20AND%20type:group%20AND%20country:US
@@ -107,7 +108,7 @@ export class MusicbrainzAPI {
 
       return this.parseArtists(...data.artists)
     } catch (e) {
-      console.error(e)
+      this.Logger.error(e)
     }
   }
 
@@ -126,22 +127,26 @@ export class MusicbrainzAPI {
     const songs: Song[] = []
 
     for (let t of tracks) {
-      // this.cacheHandler.addToCache(`song:${t.id}`, streamUrl)
-      songs.push({
-        _id: t.id.toString(),
-        title: t.title,
-        duration: t.length / 1000,
-        url: `https://beta.musicbrainz.org/recording/${t.id}`,
-        playbackUrl: `extension://moosync.starter/${t.id}`,
-        date_added: Date.now(),
-        date: t['first-release-date'], // this.parseISODate(t['first-release-date']) not sure what kind of date format this is supposed to be, nice docs Oveno
-        genre: [], // Recording genres is a scoped value
-        artists: (t['artist-credit'] as unknown as typeof t['artist-credit']['__data__']).map(({ artist }) => ({
-          artist_id: `musicbrainz:artist:${artist.id}`,
-          artist_name: artist.name,
-        })),
-        type: 'URL'
-      })
+      // Ignore non-regular tracks
+      if ((t['isrcs'] as any).length !== 0) {
+        // this.cacheHandler.addToCache(`song:${t.id}`, streamUrl)
+        songs.push({
+          _id: t.id.toString(),
+          title: t.title,
+          duration: t.length / 1000,
+          url: `https://beta.musicbrainz.org/recording/${t.id}`,
+          playbackUrl: `extension://moosync.starter/${t.id}`,
+          date_added: Date.now(),
+          date: t['first-release-date'], // this.parseISODate(t['first-release-date']) not sure what kind of date format this is supposed to be, nice docs Oveno
+          genre: [], // Recording genres is a scoped value
+          artists: (t['artist-credit'] as unknown as typeof t['artist-credit']['__data__']).map(({ artist }) => ({
+            artist_id: `artist:${artist.id}`,
+            artist_name: artist.name,
+            artist_song_count: 1, // This isn't a correct implementation
+          })),
+          type: 'URL'
+        }) 
+      }
     }
 
     return songs
@@ -151,7 +156,7 @@ export class MusicbrainzAPI {
     const tracks: Song[] = []
 
     let params = {
-      inc: 'recordings'
+      inc: 'recordings+isrcs+artist-credits'
     }
 
     const data = await this.get<MBArtist<'recordings'>>(`artist/${id}`, params, invalidateCache)
@@ -168,8 +173,19 @@ export class MusicbrainzAPI {
     // return JSON.parse(cache)
     // }
 
-    const trackDetails = await this.get<$Recording<'genres'>>(`recording/${id}`, { inc: 'genres' }, invalidateCache)
+    const trackDetails = await this.get<$Recording<'genres'>>(`recording/${id}`, { inc: 'artist-credits+releases+genres+release-groups' }, invalidateCache)
     // this.cacheHandler.addToCache(`songDets:${id}`, JSON.stringify(trackDetails))
+
+     // TODO: Roll our own Musicbrainz schema for this example because this sucks
+
+    const songArtists = trackDetails['artist-credit'] as unknown as $Recording<'genres'>['artist-credit']['__data__']
+
+    const release = trackDetails['releases'][0] as unknown as $Recording<'genres'>['releases']['__data__'][0]
+
+    const releaseGroup = release['release-group'] as unknown as typeof release['release-group']['__data__']
+
+    const releaseArtist = release['artist-credit'][0] as unknown as typeof release['artist-credit']['__data__'][0]
+
     return {
         _id: trackDetails.id,
         title: trackDetails.title,
@@ -177,12 +193,22 @@ export class MusicbrainzAPI {
         url: `https://beta.musicbrainz.org/recording/${trackDetails.id}`,
         playbackUrl: `extension://moosync.starter/${trackDetails.id}`,
         date_added: Date.now(),
-        date: trackDetails['first-release-date'], // this.parseISODate(t['first-release-date']) not sure what kind of date format this is supposed to be, nice docs Oveno,
+        date: trackDetails['first-release-date'],
         genre: (trackDetails.genres as unknown as { name: string}[]).map(({ name }) => name),
-        artists: (trackDetails['artist-credit'] as unknown as typeof trackDetails['artist-credit']['__data__']).map(({ artist }) => ({
-            artist_id: `musicbrainz:artist:${artist.id}`,
+        artists: songArtists.map(({ artist }) => ({
+            artist_id: artist.id,
             artist_name: artist.name,
+            artist_song_count: 1, // This isn't a correct implementation
         })),
+        album: {
+          album_id: release.id,
+          album_name: release.title,
+          ...(release.date ? {
+            year: Number(release.date.split('-')[0]),
+          } : {}),
+          album_song_count: releaseGroup['primary-type'] === 'Single' ? 1 : null,
+          album_artist: releaseArtist.name,
+        },
         type: 'URL'
       }
   }

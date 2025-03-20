@@ -6,7 +6,7 @@ class SampleExtension {
   Logger = Logger('Sample Extension')
 
   constructor() {
-    this.Logger.info('Initializing')
+    this.Logger.info('Initializing...')
   }
 
   private musicbrainzApi = new MusicbrainzAPI(this.updateBaseUrl.bind(this))
@@ -31,18 +31,11 @@ class SampleExtension {
     })
 
     api.on('getArtistSongs', async (artist: Artist) => {
-      this.Logger.debug('Responding to event command getArtistSongs', artist)
+      this.Logger.debug('Responding to event command getArtistSongs', JSON.stringify(artist))
 
-      const musicbrainzArtist = (await this.musicbrainzApi.searchArtist(artist.artist_name, false))[0]
-      if (musicbrainzArtist) {
-        const artistId = musicbrainzArtist.artist_id.replace('musicbrainz:artist:', '')
-        const songs = await this.musicbrainzApi.getArtistSongs(artistId, false)
-        return { songs }
-      }
-
-      return {
-        songs: []
-      }
+      const artistId = artist[0].artist_id.replace('moosync.starter:', '')
+      const songs = await this.musicbrainzApi.getArtistSongs(artistId, false)
+      return { songs }
     })
 
     api.on('getSongFromUrl', async (url) => {
@@ -70,4 +63,11 @@ class SampleExtension {
 export function entry() {
   const ext = new SampleExtension()
   ext.registerListeners()
+}
+
+if (Object.hasOwn(globalThis, 'module') && module.exports) {
+  module.exports = {
+    ...module.exports,
+    ...require('@moosync/edk').Exports
+  }
 }
