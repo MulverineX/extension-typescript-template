@@ -34,7 +34,11 @@ jobs:
           targets: 'wasm32-unknown-unknown,wasm32-wasip1'
 
       - name: Install moodriver
-        run: cargo install --git https://github.com/Moosync/moodriver
+        uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: moodriver
+          git: https://github.com/Moosync/moodriver
+          rev: ad6bf55ccfaea4fa3f2103ba2ae813290a796b6d
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
