@@ -43,4 +43,5 @@ jobs:
       #     bun run test -v
       - name: Run tests raw
         run: |
+          bun run build
           moodriver -vv -d test ./dist/ext.wasm
