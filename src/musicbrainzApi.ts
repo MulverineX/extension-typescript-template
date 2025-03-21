@@ -203,9 +203,6 @@ export class MusicbrainzAPI {
         album: {
           album_id: release.id,
           album_name: release.title,
-          ...(release.date ? {
-            year: Number(release.date.split('-')[0]),
-          } : {}),
           album_song_count: releaseGroup['primary-type'] === 'Single' ? 1 : null,
           album_artist: releaseArtist.name,
         },
