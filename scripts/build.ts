@@ -11,7 +11,7 @@ async function build() {
     console.log('Building extension')
 
     // Should be dist/ext.wasm but moodriver gets upset
-    await $`cp package.json dist && bun i && bun esbuild && extism-js dist/index.js -i ./node_modules/@moosync/edk/src/plugin.d.ts -o ./dist/ext.wasm --skip-opt && mopack --path ./dist`.quiet()
+    await $`mkdir dist && cp package.json dist && bun i && bun esbuild && extism-js dist/index.js -i ./node_modules/@moosync/edk/src/plugin.d.ts -o ./dist/ext.wasm --skip-opt && mopack --path ./dist`.quiet()
 }
 
 build()
