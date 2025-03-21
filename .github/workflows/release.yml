@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: make binaryen python3.11 curl
+          packages: make binaryen python3.11 curl unzip
 
       - name: Install extism-js
         run: |
@@ -30,7 +30,11 @@ jobs:
           targets: 'wasm32-unknown-unknown,wasm32-wasip1'
 
       - name: Install moodriver
-        run: cargo install --git https://github.com/Moosync/moodriver
+        run: |
+          curl -L -o moodriver.zip https://github.com/Moosync/moodriver/releases/download/v1.0.0/moodriver-x86_64-unknown-linux-gnu.zip
+          unzip moodriver.zip
+          chmod +x moodriver
+          sudo mv moodriver /usr/local/bin/
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
