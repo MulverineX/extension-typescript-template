@@ -27,28 +27,12 @@ jobs:
           bash install.sh
           ldd --version
 
-      - name: "Install Rust"
-        uses: "actions-rs/toolchain@v1"
-        with:
-          toolchain: "stable"
-
-      - name: "Cache cargo"
-        id: cache-cargo
-        uses: "actions/cache@v4"
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          save-always: true
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
-  
-      - name: "Install moodriver or use the cached version"
-        if: steps.cache-cargo.outputs.cache-hit != 'true'
-        run: "cargo install --git https://github.com/Moosync/moodriver"
+      - name: Install moodriver
+        run: |
+          curl -L -o moodriver.zip https://github.com/Moosync/moodriver/releases/download/v1.0.0/moodriver-x86_64-unknown-linux-gnu.zip
+          unzip moodriver.zip
+          chmod +x moodriver
+          sudo mv moodriver /usr/local/bin/
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
