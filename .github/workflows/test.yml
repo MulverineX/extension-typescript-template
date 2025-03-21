@@ -37,10 +37,10 @@ jobs:
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Run Tests
-        run: |
-          mkdir dist
-          bun run test -v
+      # - name: Run Tests
+      #   run: |
+      #     mkdir dist
+      #     bun run test -v
       - name: Run tests raw
         run: |
           moodriver -vv -d test ./dist/ext.wasm
