@@ -39,9 +39,7 @@ class SampleExtension {
       this.Logger.debug('Responding to event command getSongFromUrl')
 
       // TODO: Dummy for CI test
-      const err = new Error('not implemented')
-      this.Logger.debug(err.constructor.toString(), Object.hasOwn(globalThis, 'module') ? Object.keys(module.exports) : null)
-      throw err
+      // throw new Error('not implemented')
       const song = (await this.musicbrainzApi.parseUrl(url, false)) as unknown as Song
       if (song) return { song }
     })

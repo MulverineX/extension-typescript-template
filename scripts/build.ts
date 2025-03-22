@@ -1,3 +1,4 @@
+import * as fs from 'node:fs/promises'
 const $ = Bun.$
 
 async function build() {
@@ -10,8 +11,12 @@ async function build() {
 
     console.log('Building extension')
 
+    if (!await fs.exists('dist/')) {
+        await fs.mkdir('dist/')
+    }
+
     // Should be dist/ext.wasm but moodriver gets upset
-    await $`mkdir dist && cp package.json dist && bun i && bun esbuild && extism-js dist/index.js -i ./node_modules/@moosync/edk/src/plugin.d.ts -o ./dist/ext.wasm --skip-opt && mopack --path ./dist`.quiet()
+    await $`cp package.json dist && bun i && bun esbuild && extism-js dist/index.js -i ./node_modules/@moosync/edk/src/plugin.d.ts -o ./dist/ext.wasm --skip-opt && mopack --path ./dist`.quiet()
 }
 
 build()
