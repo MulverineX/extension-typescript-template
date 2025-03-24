@@ -38,9 +38,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Run Tests
-        run: |
-          mkdir dist
-          bun run test -v
+        run: bun run test
       # - name: Run tests raw
       #   run: |
       #     mkdir dist && cp package.json dist && bun i && bun esbuild
