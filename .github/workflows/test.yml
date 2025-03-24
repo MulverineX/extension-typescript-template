@@ -37,13 +37,13 @@ jobs:
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
 
-      # - name: Run Tests
-      #   run: |
-      #     mkdir dist
-      #     bun run test -v
-      - name: Run tests raw
+      - name: Run Tests
         run: |
-          mkdir dist && cp package.json dist && bun i && bun esbuild
-          extism-js dist/index.js -i ./node_modules/@moosync/edk/src/plugin.d.ts -o ./dist/ext.wasm --skip-opt
-          bun run './node_modules/@moosync/packer/dist/index.js' --path ./dist
-          moodriver -vv -t ./test/001-song_from_url.moosync_trace.jsonc ./dist/ext.wasm
+          mkdir dist
+          bun run test -v
+      # - name: Run tests raw
+      #   run: |
+      #     mkdir dist && cp package.json dist && bun i && bun esbuild
+      #     extism-js dist/index.js -i ./node_modules/@moosync/edk/src/plugin.d.ts -o ./dist/ext.wasm --skip-opt
+      #     bun run './node_modules/@moosync/packer/dist/index.js' --path ./dist
+      #     moodriver -vv -t ./test/001-song_from_url.moosync_trace.jsonc ./dist/ext.wasm
