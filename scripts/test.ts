@@ -30,15 +30,7 @@ await $`bun run build`.quiet()
 
 console.log('Done. Running tests...')
 
-let tests = Object.entries(await fs.readdir('./test'))
-
-console.log('Unsorted:', tests)
-
-console.log('Sorting', tests[0][1].substring(0, 3))
-
-tests = tests.sort(([i, a], [j, b]) => Number(b.substring(0, 3))+1 - Number(a.substring(0, 3))+1)
-
-console.log('Sorted:', tests)
+let tests = Object.entries(await fs.readdir('./test')).sort(([i, a], [j, b]) => (Number(b.substring(0, 3))+1) - (Number(a.substring(0, 3))+1))
 
 const args: {
     verbose?: true
