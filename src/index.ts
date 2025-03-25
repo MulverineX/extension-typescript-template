@@ -38,8 +38,6 @@ class SampleExtension {
     api.on('getSongFromUrl', async (url) => {
       this.Logger.debug('Responding to event command getSongFromUrl')
 
-      // TODO: Dummy for CI test
-      // throw new Error('not implemented')
       const song = (await this.musicbrainzApi.parseUrl(url, false)) as unknown as Song
       if (song) return { song }
     })

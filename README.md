@@ -70,10 +70,9 @@ To Build and pack the extension for Moosync using [extism-js](https://github.com
 bun run build
 ```
 
-To test how your extension responds to Event Commands you can use [moodriver](https://github.com/Moosync/moodriver) to setup a test harness.
-For now requires Rust/Cargo be available to build/install the CLI.
+To test how your extension responds to Event Commands you can use [moodriver](https://github.com/Moosync/moodriver/releases/latest) to setup a test harness.
 
-A testing script and sample test is provided in this template. Note: an extension output (log) is required for tests to pass
+A testing script and some sample tests are provided in this template. Note: an extension output (log) is required for tests to pass
 
 ```bash
 bun run test
