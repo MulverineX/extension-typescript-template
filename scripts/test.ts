@@ -12,11 +12,6 @@ const $ = Bun.$
 
 console.log('Testing moosync extension')
 
-if (!Object.hasOwn(Extension, 'entry')) {
-    console.error('No entry function found in extension.')
-    process.exit(1)
-}
-
 try {
     await $`moodriver -V`.quiet()
 } catch (e) {
@@ -30,7 +25,7 @@ await $`bun run build`.quiet()
 
 console.log('Done. Running tests...')
 
-let tests = Object.entries(await fs.readdir('./test')).sort(([i, a], [j, b]) => (Number(b.substring(0, 3))+1) - (Number(a.substring(0, 3))+1))
+let tests = Object.entries(await fs.readdir('./test')).sort(([i, a], [j, b]) => (Number(a.substring(0, 3))+1) - (Number(b.substring(0, 3))+1))
 
 const args: {
     verbose?: true

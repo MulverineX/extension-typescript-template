@@ -1,6 +1,6 @@
 import { Logger } from './logger'
 
-export const _fetch = async (url: string | URL, options?: BunFetchRequestInit) => {
+export const _fetch = async (url: string | URL, options?: RequestInit) => {
     const extismOptions: Parameters<typeof Http['request']>[0] = {
         url: typeof url === 'string' ? url : url.toString(),
         method: 'GET'
@@ -59,6 +59,7 @@ function formRequest(url: string, resp: ReturnType<typeof Http['request']>): Res
     if (!success) {
         // @ts-ignore
         response.statusText = resp.body
+        // @ts-ignore // TODO: More Typescript being weird
         throw new Error(`Request failed with status ${resp.status}`, {
             cause: response
         })

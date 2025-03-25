@@ -24,8 +24,13 @@ type ListenerUnionToObject<T extends [key: string, cb: (...args: any[]) => any]>
     [K in T as K[0]]?: K[1]
 }
 
-type MoosyncCommands = ListenerUnionToObject<OverloadParameters<typeof api['on']>>
+export type MoosyncCommands = ListenerUnionToObject<OverloadParameters<typeof api['on']>>
 
+export type MoosyncResponse<T extends keyof MoosyncCommands> = ReturnType<MoosyncCommands[T]>
+
+/**
+ * @deprecated Don't actually use this yet, it's a WIP depending on EDK changes
+ */
 export function registerCommands(listeners: Omit<MoosyncCommands, 'getProviderScopes'>) {
     const scopes: ProviderScope[] = []
     for (const [_key, cb] of Object.entries(listeners)) {
@@ -39,11 +44,6 @@ export function registerCommands(listeners: Omit<MoosyncCommands, 'getProviderSc
         }
     }
 }
-
-export const MultiCommandScopes = [
-    ['playerEvents', ['onPlay', 'onPause', 'onSkip', 'onPrevious']],
-    ['databaseEvents', ['onThing', 'onOtherThing']],
-] as const
 
 export function getSecure<T>(key: string): T {
     const attempt = api.getSecure({ key }) as any

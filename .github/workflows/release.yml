@@ -41,6 +41,7 @@ jobs:
         run: |
           echo "{release_name}={Extensions release ($(date +'%Y-%m-%d'))}" >> $GITHUB_STATE
 
+      # Ugh I wanted to replace this with a bun script but @actions/github has weird type issues that I don't want to deal with
       - name: Create Release
         uses: actions/github-script@v2
         with:

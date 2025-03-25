@@ -1,9 +1,10 @@
 import { Artist, Song, api } from '@moosync/edk'
-import { Logger, registerCommands } from './util'
+import { Logger } from './util'
 import { MusicbrainzAPI } from './musicbrainzApi'
+import { MoosyncCommands, MoosyncResponse } from './util/extension'
 
 class SampleExtension {
-  Logger = Logger('Sample Extension')
+  private Logger = Logger('Sample Extension')
 
   constructor() {
     this.Logger.info('Initializing...')
@@ -21,39 +22,49 @@ class SampleExtension {
     this.musicbrainzApi.getBaseUrl(baseUrl)
   }
 
-  registerListeners() {
-    api.on('getProviderScopes', () => {
-      this.Logger.debug('Responding to event command getProviderScopes')
-      return ['artistSongs', 'songFromUrl']
-    })
+  public async getArtistSongs(artist: Artist): Promise<MoosyncResponse<'getArtistSongs'>> {
+    this.Logger.debug('Responding to event command getArtistSongs', JSON.stringify(artist))
 
-    api.on('getArtistSongs', async (artist: Artist) => {
-      this.Logger.debug('Responding to event command getArtistSongs', JSON.stringify(artist))
+    const artistId = artist[0].artist_id.replace('moosync.starter:', '')
+    const songs = await this.musicbrainzApi.getArtistSongs(artistId, false)
+    return { songs }
+  }
 
-      const artistId = artist[0].artist_id.replace('moosync.starter:', '')
-      const songs = await this.musicbrainzApi.getArtistSongs(artistId, false)
-      return { songs }
-    })
+  public async getSongFromUrl(url: string): Promise<MoosyncResponse<'getSongFromUrl'>> {
+    this.Logger.debug('Responding to event command getSongFromUrl')
 
-    api.on('getSongFromUrl', async (url) => {
-      this.Logger.debug('Responding to event command getSongFromUrl')
+    const song = (await this.musicbrainzApi.parseUrl(url, false)) as unknown as Song
 
-      const song = (await this.musicbrainzApi.parseUrl(url, false)) as unknown as Song
-      if (song) return { song }
-    })
+    /* @ts-ignore */
+    // this.Logger.debug((new Set()).intersection) // TODO: More typescript being weird
+    if (song) return { song }
+  }
 
-    api.on('handleCustomRequest', async (url) => {
-      this.Logger.debug('Responding to event command handleCustomRequest')
+  public async handleCustomRequest(url: string): Promise<MoosyncResponse<'handleCustomRequest'>> {
+    this.Logger.debug('Responding to event command handleCustomRequest')
 
-      try {
-        this.Logger.debug('got stream request', url, typeof this.musicbrainzApi.getSongDetailsById)
-        const redirectUrl = await this.musicbrainzApi.getSongStreamById(new URL(url).pathname.substring(1), false)
-        this.Logger.debug('got direct url', redirectUrl)
-        return { redirectUrl }
-      } catch (e) {
-        this.Logger.error('Error handling custom request', e, url)
-      }
-    })
+    try {
+      this.Logger.debug('got stream request', url, typeof this.musicbrainzApi.getSongDetailsById)
+      const redirectUrl = await this.musicbrainzApi.getSongStreamById(new URL(url).pathname.substring(1), false)
+      this.Logger.debug('got direct url', redirectUrl)
+      return { redirectUrl }
+    } catch (e) {
+      this.Logger.error('Error handling custom request', e, url)
+    }
+  }
+
+  public getProviderScopes(): MoosyncResponse<'getProviderScopes'> {
+    this.Logger.debug('Responding to event command getProviderScopes')
+    return ['artistSongs', 'songFromUrl']
+  }
+
+  public registerListeners() {
+    const listeners: (keyof MoosyncCommands)[] = ['getProviderScopes', 'getArtistSongs', 'getSongFromUrl', 'handleCustomRequest']
+
+    for (const listener of listeners) {
+      /* @ts-ignore */
+      api.on(listener, this[listener].bind(this))
+    }
   }
 }
 
@@ -62,7 +73,7 @@ export function entry() {
   ext.registerListeners()
 }
 
-if (Object.hasOwn(globalThis, 'module') && module.exports) {
+if (globalThis.module !== undefined && module.exports !== undefined) {
   module.exports = {
     ...module.exports,
     ...require('@moosync/edk').Exports

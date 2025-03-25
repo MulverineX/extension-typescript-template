@@ -9,12 +9,13 @@ esbuild.build({
   outdir: 'dist',
   bundle: true,
   sourcemap: true,
+  inject: ['./src/util/polyfills.ts'],
   plugins: [
     NodeModulesPolyfillPlugin({
       url: true
     })
   ], // include this if you need some node support
-  minify: false, // might want to use true for production build
+  minify: true,
   format: 'cjs', // needs to be CJS for now
-  target: ['es2020'] // don't go over es2020 because quickjs doesn't support it
+  target: ['es2022'] // don't go over es2022 because quickjs-ng doesn't support it yet https://github.com/quickjs-ng/quickjs/issues/54 primarily the new Set methods
 })
