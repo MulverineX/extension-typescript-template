@@ -4,7 +4,7 @@
   "description": "A sample extension",
   "main": "src/index.ts",
   "icon": "assets/icon.svg",
-  "extensionEntry": "ext.wasm",
+  "extensionEntry": "dist/ext.wasm",
   "moosyncExtension": true,
   "displayName": "Starter",
   "permissions": {

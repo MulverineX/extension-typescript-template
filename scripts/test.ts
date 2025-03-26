@@ -80,7 +80,7 @@ for await (const [i, test] of tests) {
         let extensionLogged = false
 
         const moodriver = Bun.spawn({
-            cmd: ['moodriver', verbose ? '-vv' : '-v', '-t', `./test/${test}`, './ext.wasm'],
+            cmd: ['moodriver', verbose ? '-vv' : '-v', '-t', `./test/${test}`, './package.json'],
             stdout: 'pipe',
             windowsHide: true,
             windowsVerbatimArguments: true,
@@ -119,6 +119,13 @@ for await (const [i, test] of tests) {
         }
 
         let extensionLogging: false | string = false
+
+        let commandMismatch = false
+
+        const commandDiffs = {
+            expected: '',
+            received: ''
+        }
 
         let fullLog = ''
 
@@ -193,24 +200,13 @@ for await (const [i, test] of tests) {
                     if (line.startsWith('Command [')) {
                         const command = line.split(/Command \[\d\/\d\]: /)[1]
                         console.log(`\n     Running event command ${commands++}: ${command}\n`)
-                    } else if (line.startsWith('Expected: ')) {
-                        const [ _, expectedString, receivedString ] = /^Expected: (.+), received: (.+)$/.exec(line)!
+                    } else if (line.includes('Expected response does not match received response:')) {
+                        commandMismatch = true
+                    } else if (commandMismatch && line.includes('Legend:')) {
+                        commandMismatch = false
 
-                        function cleanRustyJSON(object: string) {
-                            object = object.replaceAll('Object {', '{')
-                            object = object.replaceAll('String("', '"')
-                            object = object.replaceAll('Array [', '[')
-                            object = object.replaceAll('Number(', '')
-                            object = object.replaceAll('),' , ',')
-                            object = object.replaceAll(')}' , '}')
-                            object = object.replaceAll('Null', 'null')
-
-                            return object
-                        }
-
-                        const expected = JSON.parse(cleanRustyJSON(expectedString))
-
-                        const received = JSON.parse(cleanRustyJSON(receivedString))
+                        const expected = JSON.parse(commandDiffs.expected)
+                        const received = JSON.parse(commandDiffs.received)
 
                         type LiteralUnion<T extends string> = T | string & Record<never, never>
 
@@ -321,6 +317,15 @@ for await (const [i, test] of tests) {
                                 )
                             }
                         }
+                    } else if (commandMismatch) {
+                        if (line.startsWith('-')) {
+                            commandDiffs.received += line.substring(1).trim()
+                        } else if (line.startsWith('+')) {
+                            commandDiffs.expected += line.substring(1).trim()
+                        } else {
+                            commandDiffs.received += line.trim()
+                            commandDiffs.expected += line.trim()
+                        }
                     }
                 }
             }
@@ -330,34 +335,34 @@ for await (const [i, test] of tests) {
             if (extensionLogged) {
                 if (!trace.invert) {
                     console.error('   Extension failed\n')
-                    console.error('   Test failed!')
+                    console.error('   Test failed!\n')
                     if (trace.required) {
                         fail = true
                     }
                 } else {
                     console.log('   Extension failed as expected\n')
-                    console.log('   Test passed!')
+                    console.log('   Test passed!\n')
                 }
             } else {
                 console.error('   Extension failed to run\n')
                 console.error('   moodriver error\n')
-                console.error('   Test failed!')
+                console.error('   Test failed!\n')
     
                 fail = true
             }
         } else {
             if (extensionLogged) {
                 if (!trace.invert) {
-                    console.log('   Test passed!')
+                    console.log('   Test passed!\n')
                 } else {
                     console.error('   Passed unexpectedly.\n')
-                    console.error('   Test failed!')
+                    console.error('   Test failed!\n')
                 }
             } else {
                 console.error('   Extension output not found.\n')
                 console.error('   moodriver error, full output:\n')
                 console.log(fullLog)
-                console.error('   Test failed!')
+                console.error('   Test failed!\n')
                 if (trace.required) {
                     fail = true
                 }

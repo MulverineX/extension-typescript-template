@@ -29,13 +29,13 @@
             "album": {
               "album_id": "moosync.starter:8e015d04-2a58-475a-9d06-73f78e27a09e",
               "album_name": "I Feel Alive (from “A Minecraft Movie”)",
-              "album_song_count": 1,
+              "album_song_count": 1.0,
               "album_artist": "Jack Black"
             },
             "artists": [{
               "artist_id": "moosync.starter:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
               "artist_name": "Jack Black",
-              "artist_song_count": 1
+              "artist_song_count": 1.0
             }],
             "type": "URL"
           }

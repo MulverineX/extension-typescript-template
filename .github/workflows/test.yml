@@ -24,12 +24,12 @@ jobs:
       - name: Install extism-js
         run: |
           curl -O https://raw.githubusercontent.com/extism/js-pdk/main/install.sh
-          bash install.sh v1.2.0
+          bash install.sh
           ldd --version
 
       - name: Install moodriver
         run: |
-          curl -L -o moodriver.zip https://github.com/Moosync/moodriver/releases/download/v1.0.0/moodriver-x86_64-unknown-linux-gnu.zip
+          curl -L -o moodriver.zip https://github.com/Moosync/moodriver/releases/download/v1.1.0/moodriver-x86_64-unknown-linux-gnu.zip
           unzip moodriver.zip
           chmod +x moodriver
           sudo mv moodriver /usr/local/bin/

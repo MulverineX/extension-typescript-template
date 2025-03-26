@@ -9,6 +9,7 @@
     // Used when the test is either a stub or is not needed during development.
     "skip": false,
     // Called immediately after extension load & `entry` is called, sequentially.
+    // Warning: expected numbers must include `.0` to match the actual output.
     "commands": [
         {
             "type": "requestedArtistSongs",
@@ -35,7 +36,7 @@
                             {
                                 "artist_id": "moosync.starter:artist:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
                                 "artist_name": "Jack Black",
-                                "artist_song_count": 1
+                                "artist_song_count": 1.0
                             }
                         ],
                         "type": "URL"
@@ -52,7 +53,7 @@
                             {
                                 "artist_id": "moosync.starter:artist:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
                                 "artist_name": "Jack Black",
-                                "artist_song_count": 1
+                                "artist_song_count": 1.0
                             }
                         ],
                         "type": "URL"
@@ -60,7 +61,7 @@
                     {
                         "_id": "moosync.starter:5d7ac7ea-1e06-4aaf-9f17-0c3c231255e5",
                         "title": "I Am the Warlock",
-                        "duration": 190,
+                        "duration": 190.0,
                         "url": "https://beta.musicbrainz.org/recording/5d7ac7ea-1e06-4aaf-9f17-0c3c231255e5",
                         "playbackUrl": "extension://moosync.starter/5d7ac7ea-1e06-4aaf-9f17-0c3c231255e5",
                         "date_added": "ignore",
@@ -69,12 +70,12 @@
                             {
                                 "artist_id": "moosync.starter:artist:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
                                 "artist_name": "Jack Black",
-                                "artist_song_count": 1
+                                "artist_song_count": 1.0
                             },
                             {
                                 "artist_id": "moosync.starter:artist:e61baf26-04fe-4f07-8f2a-c1ecbf7ca4c1",
                                 "artist_name": "Probot",
-                                "artist_song_count": 1
+                                "artist_song_count": 1.0
                             }
                         ],
                         "type": "URL"
@@ -91,7 +92,7 @@
                             {
                                 "artist_id": "moosync.starter:artist:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
                                 "artist_name": "Jack Black",
-                                "artist_song_count": 1
+                                "artist_song_count": 1.0
                             }
                         ],
                         "type": "URL"
@@ -99,7 +100,7 @@
                     {
                         "_id": "moosync.starter:0e184629-d621-4b00-9674-3e90386a5540",
                         "title": "Kung Fu Fighting",
-                        "duration": 150,
+                        "duration": 150.0,
                         "url": "https://beta.musicbrainz.org/recording/0e184629-d621-4b00-9674-3e90386a5540",
                         "playbackUrl": "extension://moosync.starter/0e184629-d621-4b00-9674-3e90386a5540",
                         "date_added": "ignore",
@@ -108,12 +109,12 @@
                             {
                                 "artist_id": "moosync.starter:artist:caf8a53e-7f43-4be4-95d6-18d55e1f6e18",
                                 "artist_name": "Jack Black",
-                                "artist_song_count": 1
+                                "artist_song_count": 1.0
                             },
                             {
                                 "artist_id": "moosync.starter:artist:2c69465c-0f76-45ce-90a2-1ed0fdacc997",
                                 "artist_name": "CeeLo Green",
-                                "artist_song_count": 1
+                                "artist_song_count": 1.0
                             }
                         ],
                         "type": "URL"
